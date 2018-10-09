@@ -1,0 +1,40 @@
+{
+    "name": "cfpinto/laravel-scout-elasticsearch",
+    "description": "Laravel scout driver for ElasticSearch",
+    "license": "GNU General Public License v3",
+    "keywords": [
+        "Laravel",
+        "Scout",
+        "ElasticSearch",
+        "Elastic"
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "laravel/scout": "^5.0",
+        "elasticsearch/elasticsearch": "^6.0"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "^1.8",
+        "mockery/mockery": "^1.2",
+        "phpunit/phpunit": "^7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "ScoutEngines\\Elasticsearch\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ScoutEngines\\Elasticsearch\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ScoutEngines\\Elasticsearch\\ScoutServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
