@@ -2,6 +2,8 @@
 
 **Disclaimer**: This project was highly inspired in [ErickTamayo](https://github.com/ErickTamayo/laravel-scout-elastic) implementation. However it is not a fork and most likely is incompatible.
 
+This package is intented to be used with laravel 5.6 and up. Others versions might work but might  
+
 ## Installation
 
 ```bash
