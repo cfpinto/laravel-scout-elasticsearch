@@ -51,3 +51,7 @@ The driver will work just like described in laravel scout [documentation](https:
 - [Claudio Pinto](https://github.com/cfpinto)
 - [Erick Tamayo](https://github.com/ericktamayo)
 - [All Contributors](https://github.com/cfpinto/laravel-scout-elastic/contributors)
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/cfpinto/laravel-scout-elasticsearch/badge.svg?style=beer-square)](https://beerpay.io/cfpinto/laravel-scout-elasticsearch)  [![Beerpay](https://beerpay.io/cfpinto/laravel-scout-elasticsearch/make-wish.svg?style=flat-square)](https://beerpay.io/cfpinto/laravel-scout-elasticsearch?focus=wish)
