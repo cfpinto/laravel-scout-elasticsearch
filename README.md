@@ -44,7 +44,21 @@ Change the config/scout.php file to include elasticsearch settings
 
 ## Usage
 
-The driver will work just like described in laravel scout [documentation](https://laravel.com/docs/5.5/scout)
+The driver will work just like described in laravel scout [documentation](https://laravel.com/docs/5.5/scout).
+
+If you want the ability to use closures in where and orWhere methods your model must use the Searchable trait included in the package
+
+```php
+<?php
+namespace App;
+
+use ScoutEngines\Elasticsearch\Traits\Searchable;
+
+class Product extends Model
+{
+	use Searchable; 
+}
+```
 
 ## Credits
 

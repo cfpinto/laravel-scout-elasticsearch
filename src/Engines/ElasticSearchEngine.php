@@ -213,7 +213,7 @@ class ElasticSearchEngine extends Engine
                 ]
             ]
         ];
-        
+
         if (method_exists($builder->model, 'getFields') && is_array($builder->model->getFields())) {
             $params['body']['query']['bool']['must'][0]['query_string']['fields'] = $builder->model->getFields();
         }
@@ -254,6 +254,10 @@ class ElasticSearchEngine extends Engine
      */
     protected function filters(Builder $builder)
     {
+        if ($builder instanceof \ScoutEngines\Elasticsearch\Builder) {
+            return ($builder->toESDL());
+        }
+        
         return collect($builder->wheres)->map(
             function ($value, $key) {
                 if (is_array($value)) {

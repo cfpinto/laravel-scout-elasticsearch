@@ -10,10 +10,24 @@ namespace ScoutEngines\Elasticsearch\Traits;
 
 
 use Laravel\Scout\Searchable as SearchableTrait;
+use ScoutEngines\Elasticsearch\Builder;
 
 trait Searchable
 {
     use SearchableTrait;
+
+    /**
+     * @param string  $query
+     * @param Closure $callback
+     *
+     * @return Builder
+     */
+    public static function search($query, $callback = null)
+    {
+        return new Builder(
+            new static, $query, $callback, config('scout.soft_delete', false)
+        );
+    }
 
     /**
      * @return array
@@ -35,7 +49,7 @@ trait Searchable
     {
         return $this->searchable;
     }
-    
+
     public function setFields(array $fields)
     {
         $this->searchable = $fields;
