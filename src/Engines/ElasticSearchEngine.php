@@ -57,7 +57,7 @@ class ElasticSearchEngine extends Engine
             function ($model) use (&$params) {
                 $params['body'][] = [
                     'update' => [
-                        '_id'    => $model->getKey(),
+                        '_id'    => $this->getElasticKey($model),
                         '_index' => $this->index,
                         '_type'  => $model->searchableAs(),
                     ]
@@ -85,7 +85,7 @@ class ElasticSearchEngine extends Engine
             function ($model) use (&$params) {
                 $params['body'][] = [
                     'delete' => [
-                        '_id'    => $model->getKey(),
+                        '_id'    => $this->getElasticKey($model),
                         '_index' => $this->index,
                         '_type'  => $model->searchableAs(),
                     ]
@@ -257,7 +257,7 @@ class ElasticSearchEngine extends Engine
         if ($builder instanceof \ScoutEngines\Elasticsearch\Builder) {
             return ($builder->toESDL());
         }
-        
+
         return collect($builder->wheres)->map(
             function ($value, $key) {
                 if (is_array($value)) {
@@ -287,5 +287,14 @@ class ElasticSearchEngine extends Engine
                 return [$order['column'] => $order['direction']];
             }
         )->toArray();
+    }
+
+    protected function getElasticKey($model)
+    {
+        if (method_exists($model, 'getScoutKey')) {
+            return $model->getScoutKey();
+        }
+
+        return $model->getKey();
     }
 }
