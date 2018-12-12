@@ -10,9 +10,11 @@ namespace ScoutEngines\Elasticsearch\Engines;
 
 
 use Elasticsearch\Client;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
+use Laravel\Scout\Searchable;
 
 /**
  * Class ElasticSearchEngine
@@ -55,10 +57,11 @@ class ElasticSearchEngine extends Engine
         $params['body'] = [];
         $models->each(
             function ($model) use (&$params) {
+                /** @var Searchable $model */
                 $params['body'][] = [
                     'update' => [
                         '_id'    => $this->getElasticKey($model),
-                        '_index' => $this->index,
+                        '_index' => $this->getIndex($model),
                         '_type'  => $model->searchableAs(),
                     ]
                 ];
@@ -83,10 +86,11 @@ class ElasticSearchEngine extends Engine
         $params['body'] = [];
         $models->each(
             function ($model) use (&$params) {
+                /** @var Searchable $model */
                 $params['body'][] = [
                     'delete' => [
                         '_id'    => $this->getElasticKey($model),
-                        '_index' => $this->index,
+                        '_index' => $this->getIndex($model),
                         '_type'  => $model->searchableAs(),
                     ]
                 ];
@@ -197,7 +201,7 @@ class ElasticSearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $params = [
-            'index' => $this->index,
+            'index' => $this->getIndex($builder->model),
             'type'  => $builder->index ?: $builder->model->searchableAs(),
             'body'  => [
                 'query' => [
@@ -205,7 +209,7 @@ class ElasticSearchEngine extends Engine
                         'must' => [
                             [
                                 'query_string' => [
-                                    'query' => "*{$builder->query}*"
+                                    'query' => !empty(trim($builder->query, '*\s')) ? "*{$builder->query}*" : "*"
                                 ]
                             ]
                         ]
@@ -270,7 +274,7 @@ class ElasticSearchEngine extends Engine
     }
 
     /**
-     * Generates the sort if theres any.
+     * Generates the sort if there's any.
      *
      * @param  Builder $builder
      *
@@ -289,6 +293,11 @@ class ElasticSearchEngine extends Engine
         )->toArray();
     }
 
+    /**
+     * @param Searchable|Model $model
+     *
+     * @return mixed
+     */
     protected function getElasticKey($model)
     {
         if (method_exists($model, 'getScoutKey')) {
@@ -296,5 +305,15 @@ class ElasticSearchEngine extends Engine
         }
 
         return $model->getKey();
+    }
+
+    /**
+     * @param Searchable $model
+     *
+     * @return string
+     */
+    protected function getIndex($model)
+    {
+        return $this->index . '_' . $model->searchableAs();
     }
 }
