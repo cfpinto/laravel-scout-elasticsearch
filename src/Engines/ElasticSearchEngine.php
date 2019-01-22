@@ -51,13 +51,14 @@ class ElasticSearchEngine extends Engine
      * @param  \Illuminate\Database\Eloquent\Collection $models
      *
      * @return void
+     * @throws \Exception
      */
     public function update($models)
     {
         $params['body'] = [];
         $models->each(
             function ($model) use (&$params) {
-                /** @var Searchable $model */
+                /** @var Searchable|\ScoutEngines\Elasticsearch\Traits\Searchable $model */
                 $params['body'][] = [
                     'update' => [
                         '_id'    => $this->getElasticKey($model),
@@ -71,7 +72,11 @@ class ElasticSearchEngine extends Engine
                 ];
             }
         );
-        $this->elastic->bulk($params);
+        $result = $this->elastic->bulk($params);
+
+        if ($result['errors']) {
+            throw new \Exception("Error performing bulk insert." . json_encode($result));
+        }
     }
 
     /**
@@ -80,6 +85,7 @@ class ElasticSearchEngine extends Engine
      * @param  \Illuminate\Database\Eloquent\Collection $models
      *
      * @return void
+     * @throws \Exception
      */
     public function delete($models)
     {
@@ -96,8 +102,12 @@ class ElasticSearchEngine extends Engine
                 ];
             }
         );
+        
+        $result = $this->elastic->bulk($params);
 
-        $this->elastic->bulk($params);
+        if ($result['errors']) {
+            throw new \Exception("Error performing bulk insert." . json_encode($result));
+        }
     }
 
     /**
