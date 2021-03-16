@@ -11,7 +11,7 @@
     "require": {
         "php": ">=7.1.0",
         "ext-json": "*",
-        "laravel/scout": "^6.0",
+        "laravel/scout": "^7.0",
         "elasticsearch/elasticsearch": "^6.0"
     },
     "require-dev": {
