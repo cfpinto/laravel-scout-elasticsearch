@@ -48,7 +48,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Update the given model in the index.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param \Illuminate\Database\Eloquent\Collection $models
      *
      * @return void
      * @throws \Exception
@@ -61,14 +61,14 @@ class ElasticSearchEngine extends Engine
                 /** @var Searchable|\ScoutEngines\Elasticsearch\Traits\Searchable $model */
                 $params['body'][] = [
                     'update' => [
-                        '_id'    => $this->getElasticKey($model),
+                        '_id' => $this->getElasticKey($model),
                         '_index' => $this->getIndex($model),
-                        '_type'  => $model->searchableAs(),
-                    ]
+                        '_type' => $model->searchableAs(),
+                    ],
                 ];
                 $params['body'][] = [
-                    'doc'           => $model->toSearchableArray(),
-                    'doc_as_upsert' => true
+                    'doc' => $model->toSearchableArray(),
+                    'doc_as_upsert' => true,
                 ];
             }
         );
@@ -82,7 +82,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Remove the given model from the index.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param \Illuminate\Database\Eloquent\Collection $models
      *
      * @return void
      * @throws \Exception
@@ -95,14 +95,14 @@ class ElasticSearchEngine extends Engine
                 /** @var Searchable $model */
                 $params['body'][] = [
                     'delete' => [
-                        '_id'    => $this->getElasticKey($model),
+                        '_id' => $this->getElasticKey($model),
                         '_index' => $this->getIndex($model),
-                        '_type'  => $model->searchableAs(),
-                    ]
+                        '_type' => $model->searchableAs(),
+                    ],
                 ];
             }
         );
-        
+
         $result = $this->elastic->bulk($params);
 
         if ($result['errors']) {
@@ -113,7 +113,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Perform the given search on the engine.
      *
-     * @param  \Laravel\Scout\Builder $builder
+     * @param \Laravel\Scout\Builder $builder
      *
      * @return mixed
      */
@@ -123,7 +123,7 @@ class ElasticSearchEngine extends Engine
             $builder, array_filter(
                         [
                             'numericFilters' => $this->filters($builder),
-                            'size'           => $builder->limit,
+                            'size' => $builder->limit,
                         ]
                     )
         );
@@ -132,9 +132,9 @@ class ElasticSearchEngine extends Engine
     /**
      * Perform the given search on the engine.
      *
-     * @param  \Laravel\Scout\Builder $builder
-     * @param  int                    $perPage
-     * @param  int                    $page
+     * @param \Laravel\Scout\Builder $builder
+     * @param int                    $perPage
+     * @param int                    $page
      *
      * @return mixed
      */
@@ -143,8 +143,8 @@ class ElasticSearchEngine extends Engine
         $result = $this->performSearch(
             $builder, [
                         'numericFilters' => $this->filters($builder),
-                        'from'           => (($page * $perPage) - $perPage),
-                        'size'           => $perPage,
+                        'from' => (($page * $perPage) - $perPage),
+                        'size' => $perPage,
                     ]
         );
         $result['nbPages'] = $result['hits']['total'] / $perPage;
@@ -152,10 +152,33 @@ class ElasticSearchEngine extends Engine
         return $result;
     }
 
+
+    /**
+     * Flush all of the model's records from the engine.
+     *
+     * @note
+     * This is a hack ElasticSearch does not provide a way of
+     * clearing an index at the time of writing.
+     * The approach is destroying the index and allowing it to be recreated
+     * with the new data. Use with care
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
+     * @return void
+     */
+    public function flush($model)
+    {
+        $this->elastic->indices()->delete(
+            [
+                'index' => $this->getIndex($model),
+            ]
+        );
+    }
+
     /**
      * Pluck and return the primary keys of the given results.
      *
-     * @param  mixed $results
+     * @param mixed $results
      *
      * @return \Illuminate\Support\Collection
      */
@@ -167,9 +190,9 @@ class ElasticSearchEngine extends Engine
     /**
      * Map the given results to instances of the given model.
      *
-     * @param  \Laravel\Scout\Builder              $builder
-     * @param  mixed                               $results
-     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param \Laravel\Scout\Builder              $builder
+     * @param mixed                               $results
+     * @param \Illuminate\Database\Eloquent\Model $model
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -191,7 +214,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Get the total count from a raw result returned by the engine.
      *
-     * @param  mixed $results
+     * @param mixed $results
      *
      * @return int
      */
@@ -203,8 +226,8 @@ class ElasticSearchEngine extends Engine
     /**
      * Perform the given search on the engine.
      *
-     * @param  Builder $builder
-     * @param  array   $options
+     * @param Builder $builder
+     * @param array   $options
      *
      * @return mixed
      */
@@ -212,20 +235,20 @@ class ElasticSearchEngine extends Engine
     {
         $params = [
             'index' => $this->getIndex($builder->model),
-            'type'  => $builder->index ?: $builder->model->searchableAs(),
-            'body'  => [
+            'type' => $builder->index ?: $builder->model->searchableAs(),
+            'body' => [
                 'query' => [
                     'bool' => [
                         'must' => [
                             [
                                 'query_string' => [
-                                    'query' => !empty(trim($builder->query, '*\s')) ? "*{$builder->query}*" : "*"
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                    'query' => !empty(trim($builder->query, '*\s')) ? "*{$builder->query}*" : "*",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         if (method_exists($builder->model, 'getFields') && is_array($builder->model->getFields())) {
@@ -262,7 +285,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Get the filter array for the query.
      *
-     * @param  Builder $builder
+     * @param Builder $builder
      *
      * @return array
      */
@@ -286,7 +309,7 @@ class ElasticSearchEngine extends Engine
     /**
      * Generates the sort if there's any.
      *
-     * @param  Builder $builder
+     * @param Builder $builder
      *
      * @return array|null
      */
